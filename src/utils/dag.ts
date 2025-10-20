@@ -213,8 +213,8 @@ export class DAG<T = string> {
 		}
 		for (const [id, node] of this.nodes) {
 			for (const childId of node.children) {
-				newDag.nodes.get(id)!.children.add(childId);
-				newDag.nodes.get(childId)!.parents.add(id);
+				newDag.nodes.get(id)?.children.add(childId);
+				newDag.nodes.get(childId)?.parents.add(id);
 			}
 		}
 		return newDag;

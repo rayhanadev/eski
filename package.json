@@ -5,7 +5,7 @@
 	"scripts": {
 		"dev": "wrangler dev",
 		"start": "wrangler dev",
-		"lint": "biome check . --fix",
+		"lint": "biome check . --write --unsafe",
 		"format": "biome format . --write",
 		"check-types": "tsc --noEmit",
 		"cf:typegen": "wrangler types",
