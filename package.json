@@ -21,6 +21,7 @@
 		"agents": "^0.2.14",
 		"ai": "^5.0.76",
 		"hono": "^4.10.1",
+		"mime": "^4.1.0",
 		"workers-ai-provider": "^2.0.0"
 	},
 	"trustedDependencies": [

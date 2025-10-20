@@ -12,11 +12,12 @@ import { DAG } from "../utils/dag";
 import { INGEST_WORKFLOW_OCR_SYSTEM_PROMPT } from "../utils/prompts";
 
 export type Params = {
-	image: { mediaType: string; data: string };
+	imageUrl: string;
 };
 
 export class IngestWorkflow extends WorkflowEntrypoint<Env, Params> {
 	async run(event: WorkflowEvent<Params>, step: WorkflowStep) {
+		console.info(`starting workflow: ${event.instanceId}`);
 		const tasks = await step.do("extract tasks from image", async () => {
 			console.log("Extracting tasks from image...");
 			const openai = createOpenAI({ apiKey: this.env.OPENAI_API_KEY });
@@ -30,7 +31,7 @@ export class IngestWorkflow extends WorkflowEntrypoint<Env, Params> {
 							{ type: "text", text: INGEST_WORKFLOW_OCR_SYSTEM_PROMPT },
 							{
 								type: "image",
-								image: `data:${event.payload.image.mediaType};base64,${event.payload.image.data}`,
+								image: event.payload.imageUrl,
 							},
 						],
 					},

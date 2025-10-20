@@ -7,19 +7,26 @@
 	"observability": {
 		"enabled": true
 	},
-	"ai": {
-		"binding": "AI",
-		"remote": true
-	},
 	"dev": {
 		"ip": "0.0.0.0",
 		"port": 3000
 	},
+	"ai": {
+		"binding": "AI",
+		"remote": true
+	},
+	"r2_buckets": [
+		{
+			"binding": "R2",
+			"bucket_name": "eski",
+			"remote": true
+		}
+	],
 	"workflows": [
 		{
 			"name": "ingest-workflow",
 			"binding": "INGEST_WORKFLOW",
 			"class_name": "IngestWorkflow"
 		}
-	]
+	],
 }

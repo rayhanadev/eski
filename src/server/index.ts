@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import mime from "mime/lite";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -18,24 +19,20 @@ app.post("/upload", async (c) => {
 	console.log("Received request");
 
 	const blob = await c.req.blob();
-	const buffer = await blob.arrayBuffer();
-	let binary = "";
-	const bytes = new Uint8Array(buffer);
-	const chunkSize = 0x8000;
 
-	for (let i = 0; i < bytes.length; i += chunkSize) {
-		binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+	const date = new Date();
+	const ext = mime.getExtension(blob.type);
+	const key = `uploads/${date.toISOString()}.${ext}`;
+	const object = await c.env.R2.put(key, blob);
+
+	if (!object) {
+		return c.text("Failed to upload file", 500);
 	}
 
-	const base64 = btoa(binary);
+	const imageUrl = `${c.env.PUBLIC_R2_BUCKET_URL}/${key}`;
 
 	const instance = await c.env.INGEST_WORKFLOW.create({
-		params: {
-			image: {
-				mediaType: blob.type,
-				data: base64,
-			},
-		},
+		params: { imageUrl },
 	});
 
 	console.log("Created ingestion workflow:", instance.id);
