@@ -219,4 +219,31 @@ export class DAG<T = string> {
 		}
 		return newDag;
 	}
+
+	toJSON(): { nodes: T[]; edges: [T, T][] } {
+		const nodes = Array.from(this.nodes.keys());
+		const edges: [T, T][] = [];
+		
+		for (const [fromId, node] of this.nodes) {
+			for (const toId of node.children) {
+				edges.push([fromId, toId]);
+			}
+		}
+		
+		return { nodes, edges };
+	}
+
+	static fromJSON<T>(data: { nodes: T[]; edges: [T, T][] }): DAG<T> {
+		const dag = new DAG<T>();
+		
+		for (const nodeId of data.nodes) {
+			dag.addNode(nodeId);
+		}
+		
+		for (const [fromId, toId] of data.edges) {
+			dag.addEdge(fromId, toId);
+		}
+		
+		return dag;
+	}
 }

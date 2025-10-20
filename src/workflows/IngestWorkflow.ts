@@ -68,7 +68,7 @@ export class IngestWorkflow extends WorkflowEntrypoint<Env, Params> {
 			return result.object.tasks;
 		});
 
-		const { annotatedTasks, dag } = await step.do(
+		const { dag } = await step.do(
 			"convert api response into a dag",
 			async () => {
 				console.log("Converting tasks to a DAG");
@@ -113,25 +113,14 @@ export class IngestWorkflow extends WorkflowEntrypoint<Env, Params> {
 					dag.addEdge(leafId, "sink");
 				}
 
-				const annotatedTasks = tasks.map((task) => ({
-					...task,
-					children: Array.from(dag.getNode(task.id)?.children || []).filter(
-						(id) => id !== "sink",
-					),
-					parents: Array.from(dag.getNode(task.id)?.parents || []).filter(
-						(id) => id !== "root",
-					),
-				}));
-
 				console.log("Tasks converted to DAG");
 
-				return { annotatedTasks, dag };
+				return { dag: dag.toJSON() };
 			},
 		);
 
-		console.log(annotatedTasks);
-		console.log(dag.topologicalSort());
+		console.log(dag);
 
-		return { dag: annotatedTasks };
+		return { dag };
 	}
 }
