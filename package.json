@@ -3,16 +3,27 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
-		"deploy": "wrangler deploy",
 		"dev": "wrangler dev",
 		"start": "wrangler dev",
-		"test": "vitest",
-		"cf-typegen": "wrangler types"
+		"lint": "biome check . --fix",
+		"format": "biome format . --write",
+		"check-types": "tsc --noEmit",
+		"cf:typegen": "wrangler types",
+		"cf:deploy": "wrangler deploy"
 	},
 	"devDependencies": {
-		"@cloudflare/vitest-pool-workers": "^0.8.19",
-		"typescript": "^5.5.2",
-		"vitest": "~3.2.0",
+		"@biomejs/biome": "^2.2.6",
+		"typescript": "^5.9.3",
 		"wrangler": "^4.43.0"
-	}
+	},
+	"dependencies": {
+		"@ai-sdk/openai": "^2.0.53",
+		"agents": "^0.2.14",
+		"ai": "^5.0.76",
+		"hono": "^4.10.1",
+		"workers-ai-provider": "^2.0.0"
+	},
+	"trustedDependencies": [
+		"core-js-pure"
+	]
 }
