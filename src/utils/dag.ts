@@ -1,30 +1,44 @@
-export class DAGNode<T = string> {
+export type JSONNode<T extends string, M extends Record<string, unknown>> = {
+	id: T;
+	metadata: M;
+};
+
+export type JSONEdge<T extends string> = [T, T];
+
+export type JSONGraph<T extends string, M extends Record<string, unknown>> = {
+	nodes: JSONNode<T, M>[];
+	edges: JSONEdge<T>[];
+};
+
+export class DAGNode<T = string, M = Record<string, unknown>> {
 	public readonly id: T;
 	public readonly children: Set<T>;
 	public readonly parents: Set<T>;
+	public metadata: M;
 
-	constructor(id: T) {
+	constructor(id: T, metadata?: M) {
 		this.id = id;
 		this.children = new Set();
 		this.parents = new Set();
+		this.metadata = metadata ?? ({} as M);
 	}
 }
 
-export class DAG<T = string> {
-	private nodes: Map<T, DAGNode<T>>;
+export class DAG<T extends string, M extends Record<string, unknown>> {
+	private nodes: Map<T, DAGNode<T, M>>;
 
 	constructor() {
 		this.nodes = new Map();
 	}
 
-	addNode(id: T): DAGNode<T> {
+	addNode(id: T, metadata?: M): DAGNode<T, M> {
 		if (!this.nodes.has(id)) {
-			this.nodes.set(id, new DAGNode(id));
+			this.nodes.set(id, new DAGNode(id, metadata));
 		}
 		return this.nodes.get(id)!;
 	}
 
-	getNode(id: T): DAGNode<T> | undefined {
+	getNode(id: T): DAGNode<T, M> | undefined {
 		return this.nodes.get(id);
 	}
 
@@ -203,12 +217,15 @@ export class DAG<T = string> {
 		this.nodes.clear();
 	}
 
-	clone(): DAG<T> {
-		const newDag = new DAG<T>();
+	clone(): DAG<T, M> {
+		const newDag = new DAG<T, M>();
 		for (const [id, node] of this.nodes) {
-			newDag.addNode(id);
+			newDag.addNode(id, node.metadata);
 			for (const childId of node.children) {
-				newDag.addNode(childId);
+				const childNode = this.nodes.get(childId);
+				if (childNode) {
+					newDag.addNode(childId, childNode.metadata);
+				}
 			}
 		}
 		for (const [id, node] of this.nodes) {
@@ -220,30 +237,33 @@ export class DAG<T = string> {
 		return newDag;
 	}
 
-	toJSON(): { nodes: T[]; edges: [T, T][] } {
-		const nodes = Array.from(this.nodes.keys());
+	toJSON(): JSONGraph<T, M> {
+		const nodes = [];
 		const edges: [T, T][] = [];
-		
-		for (const [fromId, node] of this.nodes) {
+
+		for (const [id, node] of this.nodes) {
+			nodes.push({ id, metadata: node.metadata });
 			for (const toId of node.children) {
-				edges.push([fromId, toId]);
+				edges.push([id, toId]);
 			}
 		}
-		
+
 		return { nodes, edges };
 	}
 
-	static fromJSON<T>(data: { nodes: T[]; edges: [T, T][] }): DAG<T> {
-		const dag = new DAG<T>();
-		
-		for (const nodeId of data.nodes) {
-			dag.addNode(nodeId);
+	static fromJSON<T extends string, M extends Record<string, unknown>>(
+		data: JSONGraph<T, M>,
+	): DAG<T, M> {
+		const dag = new DAG<T, M>();
+
+		for (const nodeData of data.nodes) {
+			dag.addNode(nodeData.id, nodeData.metadata);
 		}
-		
+
 		for (const [fromId, toId] of data.edges) {
 			dag.addEdge(fromId, toId);
 		}
-		
+
 		return dag;
 	}
 }

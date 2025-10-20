@@ -1,5 +1,6 @@
 import server from "./server";
 
+export { OrchestrationAgent } from "./agents/OrchestrationAgent";
 export { IngestWorkflow } from "./workflows/IngestWorkflow";
 
 export default {

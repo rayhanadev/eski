@@ -15,9 +15,15 @@ export type Params = {
 	imageUrl: string;
 };
 
+export type TaskMetadata = {
+	type: "email" | "text" | "meeting" | "root" | "sink";
+	text: string;
+	completed: boolean;
+};
+
 export class IngestWorkflow extends WorkflowEntrypoint<Env, Params> {
 	async run(event: WorkflowEvent<Params>, step: WorkflowStep) {
-		console.info(`starting workflow: ${event.instanceId}`);
+		console.info(`Starting Workflow: ${event.instanceId}`);
 		const tasks = await step.do("extract tasks from image", async () => {
 			console.log("Extracting tasks from image...");
 			const openai = createOpenAI({ apiKey: this.env.OPENAI_API_KEY });
@@ -73,14 +79,18 @@ export class IngestWorkflow extends WorkflowEntrypoint<Env, Params> {
 			async () => {
 				console.log("Converting tasks to a DAG");
 
-				const dag = new DAG<string>();
-				dag.addNode("root");
-				dag.addNode("sink");
+				const dag = new DAG<string, TaskMetadata>();
+				dag.addNode("root", { type: "root", text: "", completed: false });
+				dag.addNode("sink", { type: "sink", text: "", completed: false });
 
 				const taskIds = new Set(tasks.map((t) => t.id));
 
 				for (const task of tasks) {
-					dag.addNode(task.id);
+					dag.addNode(task.id, {
+						type: task.type,
+						text: task.text,
+						completed: task.completed,
+					});
 
 					if (task.dependsOn) {
 						for (const depId of task.dependsOn) {
@@ -119,7 +129,11 @@ export class IngestWorkflow extends WorkflowEntrypoint<Env, Params> {
 			},
 		);
 
-		console.log(dag);
+		await step.do("handoff to orchestration agent", async () => {
+			const id = this.env.ORCHESTRATION_AGENT.newUniqueId();
+			const agent = this.env.ORCHESTRATION_AGENT.get(id);
+			await agent.handoff(dag);
+		});
 
 		return { dag };
 	}
