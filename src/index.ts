@@ -1,3 +1,4 @@
+import consumer, { type QueueMessage } from "./queues";
 import server from "./server";
 
 export { OrchestrationAgent } from "./agents/OrchestrationAgent";
@@ -7,5 +8,6 @@ export { EmailAgent } from "./agents/subagents/EmailAgent";
 export { IngestWorkflow } from "./workflows/IngestWorkflow";
 
 export default {
+	queue: consumer,
 	fetch: server.fetch,
-} satisfies ExportedHandler<Env>;
+} satisfies ExportedHandler<Env, QueueMessage>;

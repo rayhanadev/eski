@@ -30,6 +30,19 @@
 			"class_name": "IngestWorkflow"
 		}
 	],
+	"queues": {
+		"producers": [
+			{
+				"queue": "eski",
+				"binding": "QUEUE"
+			}
+		],
+		"consumers": [
+			{
+				"queue": "eski"
+			}
+		]
+	},
 	"durable_objects": {
 		"bindings": [
 			{
