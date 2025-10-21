@@ -6,7 +6,7 @@
 	"compatibility_flags": ["nodejs_compat"],
 	"placement": { "mode": "smart" },
 	"observability": {
-		"enabled": true
+		"enabled": false
 	},
 	"dev": {
 		"ip": "0.0.0.0",
@@ -35,6 +35,14 @@
 			{
 				"name": "ORCHESTRATION_AGENT",
 				"class_name": "OrchestrationAgent"
+			},
+			{
+				"name": "CALENDAR_AGENT",
+				"class_name": "CalendarAgent"
+			},
+			{
+				"name": "EMAIL_AGENT",
+				"class_name": "EmailAgent"
 			}
 		]
 	},
@@ -42,6 +50,10 @@
 		{
 			"tag": "v1",
 			"new_sqlite_classes": ["OrchestrationAgent"]
+		},
+		{
+			"tag": "v2",
+			"new_sqlite_classes": ["CalendarAgent", "EmailAgent"]
 		}
 	]
 }

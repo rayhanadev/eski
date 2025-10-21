@@ -16,7 +16,7 @@ app.post("/upload", async (c) => {
 		return c.text("Invalid token", 400);
 	}
 
-	console.log("Received request");
+	console.log("[server] received request");
 
 	const blob = await c.req.blob();
 
@@ -35,7 +35,7 @@ app.post("/upload", async (c) => {
 		params: { imageUrl },
 	});
 
-	console.log("Created ingestion workflow:", instance.id);
+	console.log("[server] created ingestion workflow:", instance.id);
 
 	return c.json({ ok: true, metadata: { id: instance.id } });
 });
